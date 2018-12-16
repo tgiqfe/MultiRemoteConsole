@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiRemoteConsole", "Multi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MRC_ManagementService", "MRC_ManagementService\MRC_ManagementService.csproj", "{0DB33604-925E-4CAD-9D1E-5541EEA74710}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MRC_Client", "MRC_Client\MRC_Client.csproj", "{63D576CF-FF3E-472E-87EC-2295BEE29144}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MRC", "MRC\MRC.csproj", "{63D576CF-FF3E-472E-87EC-2295BEE29144}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

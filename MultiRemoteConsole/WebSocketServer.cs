@@ -5,7 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.WebSockets;
+using System.Net.Sockets;
 using System.Threading;
+using System.Security.Cryptography.X509Certificates;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace MultiRemoteConsole
 {
