@@ -18,11 +18,13 @@ namespace MultiRemoteConsole
         public const string HEADER_STD_IN = "STI:";
         public const string HEADER_STD_OUT = "STO:";
         public const string HEADER_STD_ERR = "ERR:";
-        
+
         //  設定ファイル(XML)に出力するパラメータ
-        public string[] AcceptUrls { get; set; }
-        public int Port { get; set; }
-        public string DirectoryName { get; set; }
+        public string TargetServer { get; set; }
+        public List<string> AcceptUrls { get; set; }
+        public string[] AdditinalPath { get; set; }
+        public bool IsClient { get; set; }
+        public bool IsServer { get; set; }
 
         //  コンストラクタ
         public WebSocketParams() { }
@@ -30,9 +32,11 @@ namespace MultiRemoteConsole
         //  初回実行
         public void Init()
         {
-            this.AcceptUrls = new string[] { "http://*" };
-            this.Port = 3000;
-            this.DirectoryName = "/";
+            this.TargetServer = "";
+            this.AcceptUrls = new List<string>();
+            this.AdditinalPath = new string[0];
+            this.IsClient = false;
+            this.IsServer = false;
         }
 
         //  デシリアライズ
@@ -43,20 +47,15 @@ namespace MultiRemoteConsole
             {
                 using (StreamReader sr = new StreamReader(fileName, Encoding.UTF8))
                 {
-                    switch (Path.GetExtension(fileName))
-                    {
-                        case ".xml":
-                            wsp = new XmlSerializer(typeof(WebSocketParams)).Deserialize(sr) as WebSocketParams;
-                            break;
-                    }
+                    wsp = new XmlSerializer(typeof(WebSocketParams)).Deserialize(sr) as WebSocketParams;
                 }
-
             }
             catch { }
             if (wsp == null)
             {
                 wsp = new WebSocketParams();
                 wsp.Init();
+                wsp.Serialize(fileName);
             }
             return wsp;
         }
@@ -66,15 +65,9 @@ namespace MultiRemoteConsole
         {
             using (StreamWriter sw = new StreamWriter(fileName, false, Encoding.UTF8))
             {
-                switch (Path.GetExtension(fileName))
-                {
-                    case ".xml":
-                        new XmlSerializer(typeof(WebSocketParams)).Serialize(sw, this,
-                            new XmlSerializerNamespaces(
-                                new XmlQualifiedName[1] { XmlQualifiedName.Empty }));
-                        break;
-  
-                }
+                new XmlSerializer(typeof(WebSocketParams)).Serialize(sw, this,
+                    new XmlSerializerNamespaces(
+                        new XmlQualifiedName[1] { XmlQualifiedName.Empty }));
             }
         }
     }

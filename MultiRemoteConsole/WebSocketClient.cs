@@ -11,21 +11,25 @@ namespace MultiRemoteConsole
 {
     public class WebSocketClient
     {
-        //  公開パラメータ
-        public string TargetURI { get; set; } = "ws://localhost:3000/";
+        //  静的パラメータ
+        const int TRY_OPENWAIT = 50;
+        const int TRY_INTERVAL = 100;
 
         //  プライベートパラメータ
+        private WebSocketParams _wsp = null;
         private ClientWebSocket _cws = new ClientWebSocket();
-        private const int TRY_OPENWAIT = 50;
-        private const int TRY_INTERVAL = 100;
 
         //  コンストラクタ
         public WebSocketClient() { }
+        public WebSocketClient(WebSocketParams wsp)
+        {
+            this._wsp = wsp;
+        }
 
         //  サーバ接続開始
         public async Task ConnectServer()
         {
-            await _cws.ConnectAsync(new Uri(TargetURI), CancellationToken.None);
+            await _cws.ConnectAsync(new Uri(_wsp.TargetServer), CancellationToken.None);
             ArraySegment<byte> buff = new ArraySegment<byte>(new byte[1024 * 1024]);
             int headerLength = WebSocketParams.HEADER_STD_OUT.Length;
 
@@ -75,11 +79,12 @@ namespace MultiRemoteConsole
                 WebSocketMessageType.Text,
                 true,
                 CancellationToken.None);
+
         }
-        public async Task SendMessage(ArraySegment<byte> message)
+        public async Task SendMessage(ArraySegment<byte> messageArraySegment)
         {
             await _cws.SendAsync(
-                message,
+                messageArraySegment,
                 WebSocketMessageType.Text,
                 true,
                 CancellationToken.None);

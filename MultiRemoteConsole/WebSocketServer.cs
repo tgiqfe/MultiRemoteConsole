@@ -15,24 +15,29 @@ namespace MultiRemoteConsole
 {
     public class WebSocketServer
     {
-        //  公開パラメータ
-        public string AcceptURI { get; set; } = "http://localhost:3000/";
-
-        //  プライベートパラメータ
-        private HttpListener httpListener = null;
+        //  クラスパラメータ
+        private WebSocketParams _wsp = null;
+        private HttpListener _httpListener = null;
 
         //  コンストラクタ
         public WebSocketServer() { }
+        public WebSocketServer(WebSocketParams wsp)
+        {
+            this._wsp = wsp;
+        }
 
         //  待ち受け開始
         public async Task Start()
         {
-            httpListener = new HttpListener();
-            httpListener.Prefixes.Add(AcceptURI);
-            httpListener.Start();
+            _httpListener = new HttpListener();
+            foreach(string acceptUri in _wsp.AcceptUrls)
+            {
+                _httpListener.Prefixes.Add(acceptUri);
+            }
+            _httpListener.Start();
             while (true)
             {
-                HttpListenerContext listenerContext = await httpListener.GetContextAsync();
+                HttpListenerContext listenerContext = await _httpListener.GetContextAsync();
                 if (listenerContext.Request.IsWebSocketRequest)
                 {
                     ProcessRequest(listenerContext);
@@ -66,7 +71,10 @@ namespace MultiRemoteConsole
         //  終了処理
         public void Stop()
         {
-            httpListener.Close();
+            if (_httpListener.IsListening)
+            {
+                _httpListener.Close();
+            }
         }
     }
 }

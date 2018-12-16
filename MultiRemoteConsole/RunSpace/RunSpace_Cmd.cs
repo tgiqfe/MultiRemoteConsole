@@ -94,7 +94,6 @@ namespace MultiRemoteConsole
         //  標準入力コマンドをリダイレクト
         public override void Input(string command)
         {
-            //Console.WriteLine(command);
             command = command.Trim();
             inputLength = command.Length;
             inputCount = 0;

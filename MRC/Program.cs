@@ -6,20 +6,11 @@ using System.Threading.Tasks;
 using MultiRemoteConsole;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace MRC_Client
 {
     class Program
     {
-        //  コマンドライン引数
-        class Arguments
-        {
-            public string Uri { get; set; }
-            public bool IsServer { get; set; }
-            public bool IsClient { get; set; }
-        }
-
         //  メイン処理
         static void Main(string[] args)
         {
@@ -27,14 +18,22 @@ namespace MRC_Client
             Environment.CurrentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             //  引数読み取り
-            Arguments arguments = GetArguments(args);
+            WebSocketParams wsp = GetArguments(args);
 
             //  WebSocketサーバ開始
-            if (arguments.IsServer && arguments.Uri != null)
+            WebSocketServer _wss = null;
+            if (wsp.IsServer && wsp.AcceptUrls.Count > 0)
             {
-                WebSocketServer _wss = new WebSocketServer();
-                _wss.AcceptURI = arguments.Uri;
-                if (arguments.IsClient)
+                //  PATH追加
+                if (wsp.AdditinalPath.Length > 0)
+                {
+                    Environment.SetEnvironmentVariable("PATH",
+                        string.Join(";", wsp.AdditinalPath) + ";" +
+                        Environment.ExpandEnvironmentVariables("%PATH%"));
+                }
+
+                _wss = new WebSocketServer(wsp);
+                if (wsp.IsClient)
                 {
                     _wss.Start().ConfigureAwait(false);
                 }
@@ -46,9 +45,9 @@ namespace MRC_Client
             }
 
             //  WebSocketサーバへ接続
-            if (arguments.IsClient && arguments.Uri != null)
+            if (wsp.IsClient && wsp.TargetServer != "")
             {
-                WebSocketClient wsc = new WebSocketClient() { TargetURI = arguments.Uri };
+                WebSocketClient wsc = new WebSocketClient(wsp);
                 wsc.ConnectServer().ConfigureAwait(false);
                 wsc.SendInit(WebSocketParams.MSG_CONSOLE_CMD).Wait();
                 try
@@ -56,50 +55,69 @@ namespace MRC_Client
                     while (true)
                     {
                         string command = Console.ReadLine();
+                        if (command == "exit" || command == "quit")
+                        {
+                            wsc.SendClose().ConfigureAwait(false);
+                            break;
+                        }
                         wsc.SendMessage(WebSocketParams.HEADER_STD_IN + command).Wait();
+
                     }
                 }
                 catch { }
             }
+
+            //  終了
+            if(_wss != null)
+            {
+                _wss.Stop();
+            }
         }
 
         //  引数
-        private static Arguments GetArguments(string[] args)
+        private static WebSocketParams GetArguments(string[] args)
         {
-            Arguments arguments = new Arguments();
+            WebSocketParams wsp = new WebSocketParams();
+            wsp.Init();
             for (int i = 0; i < args.Length; i++)
             {
                 switch (args[i].ToLower())
                 {
-                    case "/uri":
-                    case "-uri":
-                    case "--uri":
-                    case "/url":
-                    case "-url":
-                    case "--url":
-                    case "/u":
-                    case "-u":
-                        arguments.Uri = args[++i];
+                    case "/file":
+                    case "-file":
+                    case "--file":
+                    case "/f":
+                    case "-f":
+                        wsp = WebSocketParams.Deseiralize(args[++i]);
                         break;
-                    case "server":
+                    case "/targetserver":
+                    case "-targetserver":
+                    case "--targetserver":
                     case "/server":
                     case "-server":
                     case "--server":
                     case "/s":
                     case "-s":
-                        arguments.IsServer = true;
+                        wsp.TargetServer = args[++i];
+                        wsp.IsClient = true;
                         break;
-                    case "client":
-                    case "/client":
-                    case "-client":
-                    case "--client":
-                    case "/c":
-                    case "-c":
-                        arguments.IsClient = true;
+                    case "/accepturi":
+                    case "-accepturi":
+                    case "--accepturi":
+                    case "/accepturl":
+                    case "-accepturl":
+                    case "--accepturl":
+                    case "/accept":
+                    case "-accept":
+                    case "--accept":
+                    case "/a":
+                    case "-a":
+                        wsp.AcceptUrls.Add(args[++i]);
+                        wsp.IsServer = true;
                         break;
                 }
             }
-            return arguments;
+            return wsp;
         }
     }
 }

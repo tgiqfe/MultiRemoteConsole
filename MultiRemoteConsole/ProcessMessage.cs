@@ -46,6 +46,10 @@ namespace MultiRemoteConsole
                                 break;
                         }
                     }
+                    else if (ret.MessageType == WebSocketMessageType.Close)
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -71,6 +75,10 @@ namespace MultiRemoteConsole
                                         ToArray()));
                                 break;
                         }
+                    }
+                    else if (ret.MessageType == WebSocketMessageType.Close)
+                    {
+                        break;
                     }
                 }
             }
