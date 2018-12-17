@@ -28,7 +28,7 @@ namespace MRC_Client
                 if (wsp.AdditinalPath.Length > 0)
                 {
                     Environment.SetEnvironmentVariable("PATH",
-                        string.Join(";", wsp.AdditinalPath) + ";" +
+                        string.Join(";", wsp.AdditinalPath.Select(x => Path.GetFullPath(x))) + ";" +
                         Environment.ExpandEnvironmentVariables("%PATH%"));
                 }
 
