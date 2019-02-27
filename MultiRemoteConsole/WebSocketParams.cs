@@ -22,7 +22,8 @@ namespace MultiRemoteConsole
         //  設定ファイル(XML)に出力するパラメータ
         public string TargetServer { get; set; }
         public List<string> AcceptUrls { get; set; }
-        public string[] AdditinalPath { get; set; }
+        public string[] AddPath { get; set; }
+        public string Execute { get; set; }
         public bool IsClient { get; set; }
         public bool IsServer { get; set; }
 
@@ -34,7 +35,8 @@ namespace MultiRemoteConsole
         {
             this.TargetServer = "";
             this.AcceptUrls = new List<string>();
-            this.AdditinalPath = new string[0];
+            this.AddPath = new string[0];
+            this.Execute = "cmd.exe";
             this.IsClient = false;
             this.IsServer = false;
         }

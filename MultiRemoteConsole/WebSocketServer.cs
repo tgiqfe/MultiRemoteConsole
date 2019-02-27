@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.WebSockets;
-using System.Net.Sockets;
+using System.Text;
 using System.Threading;
-using System.Security.Cryptography.X509Certificates;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace MultiRemoteConsole
 {
@@ -30,9 +25,16 @@ namespace MultiRemoteConsole
         public async Task Start()
         {
             _httpListener = new HttpListener();
-            foreach(string acceptUri in _wsp.AcceptUrls)
+            foreach (string acceptUri in _wsp.AcceptUrls)
             {
-                _httpListener.Prefixes.Add(acceptUri);
+                if (acceptUri.EndsWith("/"))
+                {
+                    _httpListener.Prefixes.Add(acceptUri);
+                }
+                else
+                {
+                    _httpListener.Prefixes.Add(acceptUri + "/");
+                }
             }
             _httpListener.Start();
             while (true)

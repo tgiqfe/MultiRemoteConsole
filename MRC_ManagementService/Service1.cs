@@ -36,10 +36,10 @@ namespace MRC_ManagementService
             WebSocketParams wsp = WebSocketParams.Deseiralize(CONF_FILE);
 
             //  PATH追加
-            if (wsp.AdditinalPath.Length > 0)
+            if (wsp.AddPath.Length > 0)
             {
                 Environment.SetEnvironmentVariable("PATH",
-                    string.Join(";", wsp.AdditinalPath.Select(x => Path.GetFullPath(x))) + ";" +
+                    string.Join(";", wsp.AddPath.Select(x => Path.GetFullPath(x))) + ";" +
                     Environment.ExpandEnvironmentVariables("%PATH%"));
             }
 
